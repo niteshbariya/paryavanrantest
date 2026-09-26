@@ -1,3 +1,83 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course 4-B: Proficiency in English Test</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f7fafc; color: #2d3748; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { background-color: #ffffff; max-width: 750px; width: 100%; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 30px; box-sizing: border-box; }
+        h1, h2 { color: #2b6cb0; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; }
+        input[type="text"], input[type="tel"] { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        button { background-color: #3182ce; color: white; border: none; padding: 12px 24px; font-size: 16px; font-weight: 600; border-radius: 6px; cursor: pointer; width: 100%; transition: background 0.2s; }
+        button:hover { background-color: #2b6cb0; }
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; }
+        .timer { font-size: 18px; font-weight: bold; color: #e53e3e; }
+        .question-box { margin-bottom: 25px; }
+        .option-label { display: block; background: #edf2f7; padding: 12px; margin-bottom: 8px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; }
+        .option-label:hover { background: #e2e8f0; }
+        .nav-buttons { display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; }
+        .nav-buttons button { width: 48%; }
+        .result-card { background: #ebf8ff; border: 1px solid #bee3f8; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        .result-card p { margin: 8px 0; font-size: 18px; }
+        .review-item { padding: 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
+        .is-correct { background-color: #f0fff4; border-color: #9ae6b4; }
+        .is-wrong { background-color: #fff5f5; border-color: #feb2b2; }
+        .exp-box { background: #edf2f7; padding: 10px; border-radius: 4px; margin-top: 8px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="loginScreen">
+        <h1>Course 4-B: Proficiency in English</h1>
+        <h3 style="text-align: center; color: #4a5568;">સ્વ-અધ્યયન મૂલ્યાંકન કસોટી</h3>
+        <div class="form-group">
+            <label for="name">પૂરું નામ:</label>
+            <input type="text" id="name" placeholder="તમારું નામ દાખલ કરો">
+        </div>
+        <div class="form-group">
+            <label for="phone">મોબાઇલ નંબર:</label>
+            <input type="tel" id="phone" placeholder="૧૦ અંકનો મોબાઇલ નંબર">
+        </div>
+        <button onclick="startQuiz()">ટેસ્ટ શરૂ કરો</button>
+    </div>
+
+    <div id="quizScreen" style="display: none;">
+        <div class="quiz-header">
+            <span id="qProgress" style="font-weight: 600;">પ્રશ્ન ૧</span>
+            <span class="timer" id="timerDisplay">૦૦:૦૦</span>
+        </div>
+        <div class="question-box">
+            <h3 id="questionText" style="margin-bottom: 15px;"></h3>
+            <div id="optionsContainer"></div>
+        </div>
+        <div class="nav-buttons">
+            <button id="prevBtn" onclick="prevQuestion()" style="background-color: #718096;">પાછળ</button>
+            <button id="nextBtn" onclick="nextQuestion()">આગળ</button>
+        </div>
+    </div>
+
+    <div id="resultScreen" style="display: none;">
+        <h2>કસોટી પરિણામ</h2>
+        <div class="result-card">
+            <p><strong>વિષય:</strong> English Proficiency (Course 4-B)</p>
+            <p><strong>નામ:</strong> <span id="resName"></span></p>
+            <p><strong>મોબાઇલ:</strong> <span id="resPhone"></span></p>
+            <p><strong>લીધેલો સમય:</strong> <span id="resTime"></span></p>
+            <p><strong>મેળવેલ ગુણ:</strong> <span id="resScore" style="color: #2b6cb0; font-weight: bold;"></span></p>
+            <p><strong>ટકાવારી:</strong> <span id="resPercent" style="color: #2f855a; font-weight: bold;"></span></p>
+        </div>
+        <h3>જવાબો અને વિગતવાર સમજૂતી</h3>
+        <div id="reviewContainer"></div>
+    </div>
+</div>
+
+<script>
+const SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE";
+
 const questions = [
   {
     q: "૧. ડેવિડ ક્રિસ્ટલ (Crystal, 1997) ના મતે કોઈ ભાષા વૈશ્વિક ભાષા (Global Language) નો દરજ્જો ક્યારે પ્રાપ્ત કરે છે?",
@@ -535,3 +615,120 @@ const questions = [
     exp: "માત્ર એક અલ્પવિરામનું સ્થાન બદલાવાથી બંને વાક્યોના અર્થ એકબીજાથી તદ્દન વિરોધી બની જાય છે."
   }
 ];
+
+let currentQ = 0;
+let userAnswers = new Array(questions.length).fill(null);
+let startTime, timerInterval, studentName, studentPhone;
+
+function startQuiz() {
+    studentName = document.getElementById("name").value.trim();
+    studentPhone = document.getElementById("phone").value.trim();
+    if (!studentName || studentPhone.length < 10) {
+        alert("કૃપા કરીને પૂરું નામ અને સાચો ૧૦ અંકનો મોબાઇલ નંબર દાખલ કરો.");
+        return;
+    }
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("quizScreen").style.display = "block";
+    startTime = new Date();
+    timerInterval = setInterval(updateTimer, 1000);
+    loadQuestion();
+}
+
+function updateTimer() {
+    const elapsed = Math.floor((new Date() - startTime) / 1000);
+    const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+    const secs = String(elapsed % 60).padStart(2, '0');
+    document.getElementById("timerDisplay").innerText = `${mins}:${secs}`;
+}
+
+function loadQuestion() {
+    const q = questions[currentQ];
+    document.getElementById("qProgress").innerText = `પ્રશ્ન ${currentQ + 1} / ${questions.length}`;
+    document.getElementById("questionText").innerText = q.q;
+    const optContainer = document.getElementById("optionsContainer");
+    optContainer.innerHTML = "";
+
+    q.options.forEach((opt, idx) => {
+        const label = document.createElement("label");
+        label.className = "option-label";
+        const isChecked = userAnswers[currentQ] === idx ? "checked" : "";
+        label.innerHTML = `<input type="radio" name="opt" value="${idx}" ${isChecked} onchange="saveAnswer(${idx})"> ${opt}`;
+        optContainer.appendChild(label);
+    });
+
+    document.getElementById("prevBtn").style.visibility = (currentQ === 0) ? "hidden" : "visible";
+    document.getElementById("nextBtn").innerText = (currentQ === questions.length - 1) ? "ટેસ્ટ સબમિટ કરો" : "આગળ";
+}
+
+function saveAnswer(idx) {
+    userAnswers[currentQ] = idx;
+}
+
+function prevQuestion() {
+    if (currentQ > 0) { currentQ--; loadQuestion(); }
+}
+
+function nextQuestion() {
+    if (currentQ < questions.length - 1) {
+        currentQ++;
+        loadQuestion();
+    } else {
+        submitQuiz();
+    }
+}
+
+function submitQuiz() {
+    clearInterval(timerInterval);
+    const elapsed = Math.floor((new Date() - startTime) / 1000);
+    const formattedTime = `${Math.floor(elapsed / 60)} મિનિટ ${elapsed % 60} સેકન્ડ`;
+
+    let score = 0;
+    questions.forEach((q, i) => { if (userAnswers[i] === q.ans) score++; });
+    const percent = ((score / questions.length) * 100).toFixed(2);
+
+    document.getElementById("quizScreen").style.display = "none";
+    document.getElementById("resultScreen").style.display = "block";
+    document.getElementById("resName").innerText = studentName;
+    document.getElementById("resPhone").innerText = studentPhone;
+    document.getElementById("resTime").innerText = formattedTime;
+    document.getElementById("resScore").innerText = `${score} / ${questions.length}`;
+    document.getElementById("resPercent").innerText = `${percent}%`;
+
+    const revBox = document.getElementById("reviewContainer");
+    revBox.innerHTML = "";
+    questions.forEach((q, i) => {
+        const isCorrect = (userAnswers[i] === q.ans);
+        const item = document.createElement("div");
+        item.className = "review-item " + (isCorrect ? "is-correct" : "is-wrong");
+        item.innerHTML = `
+            <p style="font-weight:600; margin:0 0 8px 0;">${q.q}</p>
+            <p style="margin:4px 0; color: ${isCorrect ? '#22543d' : '#742a2a'};">
+                <strong>તમારો ઉત્તર:</strong> ${userAnswers[i] !== null ? q.options[userAnswers[i]] : "જવાબ આપ્યો નથી"} ${isCorrect ? '✅' : '❌'}
+            </p>
+            ${!isCorrect ? `<p style="margin:4px 0; color:#22543d;"><strong>સાચો ઉત્તર:</strong> ${q.options[q.ans]}</p>` : ''}
+            <div class="exp-box"><strong>સમજૂતી:</strong> ${q.exp}</div>
+        `;
+        revBox.appendChild(item);
+    });
+
+    const testData = {
+        dateTime: new Date().toLocaleString('gu-IN', { timeZone: 'Asia/Kolkata' }),
+        name: studentName,
+        phone: studentPhone,
+        subject: "Course 4-B: Proficiency in English",
+        timeTaken: formattedTime,
+        score: `${score} / ${questions.length}`,
+        percentage: `${percent}%`
+    };
+
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(testData)
+    });
+}
+</script>
+
+</body>
+</html>
